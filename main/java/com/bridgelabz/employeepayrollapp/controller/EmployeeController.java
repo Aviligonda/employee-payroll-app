@@ -26,4 +26,10 @@ public class EmployeeController {
         return employeeService.getAllEmployeeData();
     }
 
+    //UC3
+    @PutMapping("/updateemployee/{id}")
+    public EmployeeModel updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
+        return employeeService.updateEmployeeDetails(id, employeeDTO);
+    }
+
 }
