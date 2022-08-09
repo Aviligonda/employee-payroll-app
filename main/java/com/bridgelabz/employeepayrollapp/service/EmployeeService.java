@@ -51,4 +51,16 @@ public class EmployeeService implements IEmployeeService {
             throw new EmployeeNotFoundException(400, "Employee is Not Found");
         }
     }
+
+    @Override
+    public EmployeeModel deleteEmployee(Long id) {
+        Optional<EmployeeModel> deleteEmployee = employeeRepository.findById(id);
+        if (deleteEmployee.isPresent()) {
+            employeeRepository.delete(deleteEmployee.get());
+            return deleteEmployee.get();
+        } else {
+            throw new EmployeeNotFoundException(400, "Employee is Not Found");
+        }
+    }
+
 }

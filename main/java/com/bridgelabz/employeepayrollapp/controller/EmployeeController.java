@@ -32,4 +32,10 @@ public class EmployeeController {
         return employeeService.updateEmployeeDetails(id, employeeDTO);
     }
 
+    //UC4
+    @DeleteMapping("/deleteemployee/{id}")
+    public EmployeeModel deleteEmployee(@PathVariable Long id) {
+        return employeeService.deleteEmployee(id);
+    }
+
 }
