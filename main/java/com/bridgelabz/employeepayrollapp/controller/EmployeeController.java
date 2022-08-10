@@ -23,8 +23,8 @@ public class EmployeeController {
 
     //UC2
     @GetMapping("/getallemployees")
-    public List<EmployeeModel> getAllEmployeeData() {
-        return employeeService.getAllEmployeeData();
+    public List<EmployeeModel> getAllEmployeeData(@RequestHeader String token) {
+        return employeeService.getAllEmployeeData(token);
     }
 
     //UC3

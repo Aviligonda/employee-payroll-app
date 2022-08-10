@@ -5,6 +5,7 @@ import com.bridgelabz.employeepayrollapp.exception.EmployeeNotFoundException;
 import com.bridgelabz.employeepayrollapp.model.EmployeeModel;
 import com.bridgelabz.employeepayrollapp.repository.EmployeeRepository;
 import com.bridgelabz.employeepayrollapp.util.Response;
+import com.bridgelabz.employeepayrollapp.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,8 @@ import java.util.Optional;
 public class EmployeeService implements IEmployeeService {
     @Autowired
     EmployeeRepository employeeRepository;
+    @Autowired
+    TokenUtil tokenUtil;
 
     @Override
     public EmployeeModel addEmployee(EmployeeDTO employeeDTO) {
@@ -26,13 +29,18 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public List<EmployeeModel> getAllEmployeeData() {
-        List<EmployeeModel> getEmployees = employeeRepository.findAll();
-        if (getEmployees.size() > 0) {
-            return getEmployees;
-        } else {
-            throw new EmployeeNotFoundException(400, "No Employees IS There");
+    public List<EmployeeModel> getAllEmployeeData(String token) {
+        Long empId = tokenUtil.decodeToken(token);
+        Optional<EmployeeModel> isEmployeePresent = employeeRepository.findById(empId);
+        if (isEmployeePresent.isPresent()) {
+            List<EmployeeModel> getEmployees = employeeRepository.findAll();
+            if (getEmployees.size() > 0) {
+                return getEmployees;
+            } else {
+                throw new EmployeeNotFoundException(400, "No Employees Is There");
+            }
         }
+        throw new EmployeeNotFoundException(400, "Employee Is Not Found");
     }
 
     @Override
@@ -69,7 +77,8 @@ public class EmployeeService implements IEmployeeService {
         Optional<EmployeeModel> isEmailPresent = employeeRepository.findByEmailId(emailId);
         if (isEmailPresent.isPresent()) {
             if (isEmailPresent.get().getPassword().equals(password)) {
-                return new Response(200, "LoginSuccess");
+                String token = tokenUtil.createToken(isEmailPresent.get().getId());
+                return new Response(200, "LoginSuccess", token);
             } else {
                 throw new EmployeeNotFoundException(400, "Password is wrong");
             }
