@@ -4,6 +4,7 @@ import com.bridgelabz.employeepayrollapp.dto.EmployeeDTO;
 import com.bridgelabz.employeepayrollapp.exception.EmployeeNotFoundException;
 import com.bridgelabz.employeepayrollapp.model.EmployeeModel;
 import com.bridgelabz.employeepayrollapp.repository.EmployeeRepository;
+import com.bridgelabz.employeepayrollapp.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +62,19 @@ public class EmployeeService implements IEmployeeService {
         } else {
             throw new EmployeeNotFoundException(400, "Employee is Not Found");
         }
+    }
+
+    @Override
+    public Response login(String emailId, String password) {
+        Optional<EmployeeModel> isEmailPresent = employeeRepository.findByEmailId(emailId);
+        if (isEmailPresent.isPresent()) {
+            if (isEmailPresent.get().getPassword().equals(password)) {
+                return new Response(200, "LoginSuccess");
+            } else {
+                throw new EmployeeNotFoundException(400, "Password is wrong");
+            }
+        }
+        throw new EmployeeNotFoundException(400, "Employee is not found");
     }
 
 }
