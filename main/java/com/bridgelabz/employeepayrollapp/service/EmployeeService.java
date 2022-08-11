@@ -44,32 +44,42 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public EmployeeModel updateEmployeeDetails(Long id, EmployeeDTO employeeDTO) {
-        Optional<EmployeeModel> isEmployeePresent = employeeRepository.findById(id);
-        if (isEmployeePresent.isPresent()) {
-            isEmployeePresent.get().setFirstName(employeeDTO.getFirstName());
-            isEmployeePresent.get().setLastName(employeeDTO.getLastName());
-            isEmployeePresent.get().setAge(employeeDTO.getAge());
-            isEmployeePresent.get().setSalary(employeeDTO.getSalary());
-            isEmployeePresent.get().setDepartment(employeeDTO.getDepartment());
-            isEmployeePresent.get().setCompanyName(employeeDTO.getCompanyName());
-            isEmployeePresent.get().setUpdatedDate(LocalDateTime.now());
-            employeeRepository.save(isEmployeePresent.get());
-            return isEmployeePresent.get();
-        } else {
-            throw new EmployeeNotFoundException(400, "Employee is Not Found");
+    public EmployeeModel updateEmployeeDetails(Long id, EmployeeDTO employeeDTO, String token) {
+        Long empId = tokenUtil.decodeToken(token);
+        Optional<EmployeeModel> isEmpPresent = employeeRepository.findById(empId);
+        if (isEmpPresent.isPresent()) {
+            Optional<EmployeeModel> isEmployeePresent = employeeRepository.findById(id);
+            if (isEmployeePresent.isPresent()) {
+                isEmployeePresent.get().setFirstName(employeeDTO.getFirstName());
+                isEmployeePresent.get().setLastName(employeeDTO.getLastName());
+                isEmployeePresent.get().setAge(employeeDTO.getAge());
+                isEmployeePresent.get().setSalary(employeeDTO.getSalary());
+                isEmployeePresent.get().setDepartment(employeeDTO.getDepartment());
+                isEmployeePresent.get().setCompanyName(employeeDTO.getCompanyName());
+                isEmployeePresent.get().setUpdatedDate(LocalDateTime.now());
+                employeeRepository.save(isEmployeePresent.get());
+                return isEmployeePresent.get();
+            } else {
+                throw new EmployeeNotFoundException(400, "Employee is Not Found");
+            }
         }
+        throw new EmployeeNotFoundException(400, "Wrong token");
     }
 
     @Override
-    public EmployeeModel deleteEmployee(Long id) {
-        Optional<EmployeeModel> deleteEmployee = employeeRepository.findById(id);
-        if (deleteEmployee.isPresent()) {
-            employeeRepository.delete(deleteEmployee.get());
-            return deleteEmployee.get();
-        } else {
-            throw new EmployeeNotFoundException(400, "Employee is Not Found");
+    public EmployeeModel deleteEmployee(Long id, String token) {
+        Long empId = tokenUtil.decodeToken(token);
+        Optional<EmployeeModel> isEmpPresent = employeeRepository.findById(empId);
+        if (isEmpPresent.isPresent()) {
+            Optional<EmployeeModel> deleteEmployee = employeeRepository.findById(id);
+            if (deleteEmployee.isPresent()) {
+                employeeRepository.delete(deleteEmployee.get());
+                return deleteEmployee.get();
+            } else {
+                throw new EmployeeNotFoundException(400, "Employee is Not Found");
+            }
         }
+        throw new EmployeeNotFoundException(400, "Token is wrong");
     }
 
     @Override
