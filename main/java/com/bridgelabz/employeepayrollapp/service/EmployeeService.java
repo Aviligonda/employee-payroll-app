@@ -19,12 +19,17 @@ public class EmployeeService implements IEmployeeService {
     EmployeeRepository employeeRepository;
     @Autowired
     TokenUtil tokenUtil;
+    @Autowired
+    MailService mailService;
 
     @Override
     public EmployeeModel addEmployee(EmployeeDTO employeeDTO) {
         EmployeeModel employeeModel = new EmployeeModel(employeeDTO);
         employeeModel.setRegisterDate(LocalDateTime.now());
         employeeRepository.save(employeeModel);
+        String body = "Employee added Successfully with Employee id is :" + employeeModel.getId();
+        String subject = "Employee Registration Successfully";
+        mailService.send(employeeDTO.getEmailId(), body, subject);
         return employeeModel;
     }
 
@@ -58,6 +63,9 @@ public class EmployeeService implements IEmployeeService {
                 isEmployeePresent.get().setCompanyName(employeeDTO.getCompanyName());
                 isEmployeePresent.get().setUpdatedDate(LocalDateTime.now());
                 employeeRepository.save(isEmployeePresent.get());
+                String body = "Employee Updated Successfully with Employee id is :" + isEmployeePresent.get().getId();
+                String subject = "Employee Updated Successfully..";
+                mailService.send(employeeDTO.getEmailId(), body, subject);
                 return isEmployeePresent.get();
             } else {
                 throw new EmployeeNotFoundException(400, "Employee is Not Found");
@@ -74,6 +82,9 @@ public class EmployeeService implements IEmployeeService {
             Optional<EmployeeModel> deleteEmployee = employeeRepository.findById(id);
             if (deleteEmployee.isPresent()) {
                 employeeRepository.delete(deleteEmployee.get());
+                String body = "Employee Deleted Successfully with Employee id is :" + isEmpPresent.get().getId();
+                String subject = "Employee Deleted..";
+                mailService.send(isEmpPresent.get().getEmailId(), body, subject);
                 return deleteEmployee.get();
             } else {
                 throw new EmployeeNotFoundException(400, "Employee is Not Found");
