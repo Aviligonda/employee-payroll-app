@@ -8,6 +8,7 @@ public class EmployeeNotFoundException extends RuntimeException {
     private String statusMessage;
 
     public EmployeeNotFoundException(int statusCode, String statusMessage) {
+        super(statusMessage);
         this.statusCode = statusCode;
         this.statusMessage = statusMessage;
     }

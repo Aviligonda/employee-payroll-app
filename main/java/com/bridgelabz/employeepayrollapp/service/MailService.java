@@ -1,5 +1,6 @@
 package com.bridgelabz.employeepayrollapp.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
@@ -9,6 +10,7 @@ import java.util.Date;
 import java.util.Properties;
 
 @Component
+@Slf4j
 public class MailService {
     public static void send(String toEmail, String body, String subject) {
         final String fromEmail = System.getenv("Email");
@@ -37,7 +39,7 @@ public class MailService {
             message.setSentDate(new Date());
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
             Transport.send(message);
-            System.out.println("Email Sent Successfully.........");
+            log.info("Email Sent Successfully.........");
         } catch (Exception e) {
             e.printStackTrace();
         }

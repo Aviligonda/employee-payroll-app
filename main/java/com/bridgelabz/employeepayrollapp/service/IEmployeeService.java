@@ -7,11 +7,11 @@ import com.bridgelabz.employeepayrollapp.util.Response;
 import java.util.List;
 
 public interface IEmployeeService {
-    EmployeeModel addEmployee(EmployeeDTO employeeDTO);
+    EmployeeModel addEmployee(EmployeeDTO employeeDTO, Long departmentId);
 
     List<EmployeeModel> getAllEmployeeData(String token);
 
-    EmployeeModel updateEmployeeDetails(Long id, EmployeeDTO employeeDTO, String token);
+    EmployeeModel updateEmployeeDetails(Long id, EmployeeDTO employeeDTO, String token, Long departmentId);
 
     EmployeeModel deleteEmployee(Long id, String token);
 

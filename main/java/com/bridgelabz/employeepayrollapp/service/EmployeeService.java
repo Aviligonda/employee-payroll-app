@@ -2,7 +2,9 @@ package com.bridgelabz.employeepayrollapp.service;
 
 import com.bridgelabz.employeepayrollapp.dto.EmployeeDTO;
 import com.bridgelabz.employeepayrollapp.exception.EmployeeNotFoundException;
+import com.bridgelabz.employeepayrollapp.model.DepartmentModel;
 import com.bridgelabz.employeepayrollapp.model.EmployeeModel;
+import com.bridgelabz.employeepayrollapp.repository.DepartmentRepository;
 import com.bridgelabz.employeepayrollapp.repository.EmployeeRepository;
 import com.bridgelabz.employeepayrollapp.util.Response;
 import com.bridgelabz.employeepayrollapp.util.TokenUtil;
@@ -21,16 +23,24 @@ public class EmployeeService implements IEmployeeService {
     TokenUtil tokenUtil;
     @Autowired
     MailService mailService;
+    @Autowired
+    DepartmentRepository departmentRepository;
 
     @Override
-    public EmployeeModel addEmployee(EmployeeDTO employeeDTO) {
-        EmployeeModel employeeModel = new EmployeeModel(employeeDTO);
-        employeeModel.setRegisterDate(LocalDateTime.now());
-        employeeRepository.save(employeeModel);
-        String body = "Employee added Successfully with Employee id is :" + employeeModel.getId();
-        String subject = "Employee Registration Successfully";
-        mailService.send(employeeDTO.getEmailId(), body, subject);
-        return employeeModel;
+    public EmployeeModel addEmployee(EmployeeDTO employeeDTO, Long departmentId) {
+        Optional<DepartmentModel> isDepartment = departmentRepository.findById(departmentId);
+        if (isDepartment.isPresent()) {
+            EmployeeModel employeeModel = new EmployeeModel(employeeDTO);
+            employeeModel.setDepartment(isDepartment.get());
+            employeeModel.setRegisterDate(LocalDateTime.now());
+            employeeRepository.save(employeeModel);
+            String body = "Employee added Successfully with Employee id is :" + employeeModel.getId();
+            String subject = "Employee Registration Successfully";
+            mailService.send(employeeDTO.getEmailId(), body, subject);
+            return employeeModel;
+        } else {
+            throw new EmployeeNotFoundException(400, "Department is not found");
+        }
     }
 
     @Override
@@ -49,29 +59,33 @@ public class EmployeeService implements IEmployeeService {
     }
 
     @Override
-    public EmployeeModel updateEmployeeDetails(Long id, EmployeeDTO employeeDTO, String token) {
+    public EmployeeModel updateEmployeeDetails(Long id, EmployeeDTO employeeDTO, String token, Long departmentId) {
         Long empId = tokenUtil.decodeToken(token);
-        Optional<EmployeeModel> isEmpPresent = employeeRepository.findById(empId);
-        if (isEmpPresent.isPresent()) {
-            Optional<EmployeeModel> isEmployeePresent = employeeRepository.findById(id);
-            if (isEmployeePresent.isPresent()) {
-                isEmployeePresent.get().setFirstName(employeeDTO.getFirstName());
-                isEmployeePresent.get().setLastName(employeeDTO.getLastName());
-                isEmployeePresent.get().setAge(employeeDTO.getAge());
-                isEmployeePresent.get().setSalary(employeeDTO.getSalary());
-                isEmployeePresent.get().setDepartment(employeeDTO.getDepartment());
-                isEmployeePresent.get().setCompanyName(employeeDTO.getCompanyName());
-                isEmployeePresent.get().setUpdatedDate(LocalDateTime.now());
-                employeeRepository.save(isEmployeePresent.get());
-                String body = "Employee Updated Successfully with Employee id is :" + isEmployeePresent.get().getId();
-                String subject = "Employee Updated Successfully..";
-                mailService.send(employeeDTO.getEmailId(), body, subject);
-                return isEmployeePresent.get();
-            } else {
-                throw new EmployeeNotFoundException(400, "Employee is Not Found");
+        Optional<DepartmentModel> isDepartment = departmentRepository.findById(departmentId);
+        if (isDepartment.isPresent()) {
+            Optional<EmployeeModel> isEmpPresent = employeeRepository.findById(empId);
+            if (isEmpPresent.isPresent()) {
+                Optional<EmployeeModel> isEmployeePresent = employeeRepository.findById(id);
+                if (isEmployeePresent.isPresent()) {
+                    isEmployeePresent.get().setFirstName(employeeDTO.getFirstName());
+                    isEmployeePresent.get().setLastName(employeeDTO.getLastName());
+                    isEmployeePresent.get().setAge(employeeDTO.getAge());
+                    isEmployeePresent.get().setSalary(employeeDTO.getSalary());
+                    isEmployeePresent.get().setCompanyName(employeeDTO.getCompanyName());
+                    isEmployeePresent.get().setUpdatedDate(LocalDateTime.now());
+                    isEmployeePresent.get().setDepartment(isDepartment.get());
+                    employeeRepository.save(isEmployeePresent.get());
+                    String body = "Employee Updated Successfully with Employee id is :" + isEmployeePresent.get().getId();
+                    String subject = "Employee Updated Successfully..";
+                    mailService.send(employeeDTO.getEmailId(), body, subject);
+                    return isEmployeePresent.get();
+                } else {
+                    throw new EmployeeNotFoundException(400, "Employee is Not Found");
+                }
             }
+            throw new EmployeeNotFoundException(400, "Wrong token");
         }
-        throw new EmployeeNotFoundException(400, "Wrong token");
+        throw new EmployeeNotFoundException(400, "Department is not found with this ID");
     }
 
     @Override
