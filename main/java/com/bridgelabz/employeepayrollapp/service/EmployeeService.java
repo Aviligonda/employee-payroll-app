@@ -1,6 +1,7 @@
 package com.bridgelabz.employeepayrollapp.service;
 
 import com.bridgelabz.employeepayrollapp.dto.EmployeeDTO;
+import com.bridgelabz.employeepayrollapp.exception.CustomValidationException;
 import com.bridgelabz.employeepayrollapp.exception.EmployeeNotFoundException;
 import com.bridgelabz.employeepayrollapp.model.DepartmentModel;
 import com.bridgelabz.employeepayrollapp.model.EmployeeModel;
@@ -9,6 +10,7 @@ import com.bridgelabz.employeepayrollapp.repository.EmployeeRepository;
 import com.bridgelabz.employeepayrollapp.util.Response;
 import com.bridgelabz.employeepayrollapp.util.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -121,4 +123,47 @@ public class EmployeeService implements IEmployeeService {
         throw new EmployeeNotFoundException(400, "Employee is not found");
     }
 
+    // Instead of firstName u can mention any field name it will be sorting
+    @Override
+    public List<EmployeeModel> sorting() {
+        List<EmployeeModel> sorting = employeeRepository.findAll(Sort.by(Sort.Direction.ASC, "firstName"));
+        if (sorting.size() > 0) {
+            return sorting;
+        } else {
+            throw new EmployeeNotFoundException(400, "No Employees Found");
+        }
+    }
+
+    //Enter Any letter of Company name it will be shown
+    @Override
+    public List<EmployeeModel> findByCompanyName(String companyName) {
+        List<EmployeeModel> isCompany = employeeRepository.findByCompanyNameContainingIgnoreCase(companyName);
+        if (isCompany.size() > 0) {
+            return isCompany;
+        } else {
+            throw new EmployeeNotFoundException(400, "No company found with this name");
+        }
+    }
+
+    // using native Query retrieve the data
+    @Override
+    public List<EmployeeModel> findByFirstName(String firstName) {
+        List<EmployeeModel> isFirstName = employeeRepository.findFirstName(firstName);
+        if (isFirstName.isEmpty()) {
+            throw new EmployeeNotFoundException(400, "Employee not found with this name");
+        } else {
+            return isFirstName;
+        }
+    }
+
+    // using native query retrieve the data from database
+    @Override
+    public List<EmployeeModel> orderByLastName() {
+        List<EmployeeModel> isLastName = employeeRepository.orderByLastName();
+        if (isLastName.size() > 0) {
+            return isLastName;
+        } else {
+            throw new EmployeeNotFoundException(400, "no Employee found");
+        }
+    }
 }

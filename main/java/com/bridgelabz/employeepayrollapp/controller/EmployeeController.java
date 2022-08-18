@@ -7,6 +7,7 @@ import com.bridgelabz.employeepayrollapp.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -16,7 +17,7 @@ public class EmployeeController {
     IEmployeeService employeeService;
 
     @PostMapping("/addemployee")
-    public EmployeeModel addEmployee(@RequestBody EmployeeDTO employeeDTO,
+    public EmployeeModel addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO,
                                      @RequestParam Long departmentId) {
         return employeeService.addEmployee(employeeDTO, departmentId);
     }
@@ -27,7 +28,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/updateemployee/{id}")
-    public EmployeeModel updateEmployee(@PathVariable Long id, @RequestBody EmployeeDTO employeeDTO
+    public EmployeeModel updateEmployee(@Valid @PathVariable Long id, @RequestBody EmployeeDTO employeeDTO
             , @RequestHeader String token, @RequestParam Long departmentId) {
         return employeeService.updateEmployeeDetails(id, employeeDTO, token, departmentId);
     }
@@ -44,5 +45,23 @@ public class EmployeeController {
         return employeeService.login(emailId, password);
     }
 
+    @GetMapping("/sortingByFirstName")
+    public List<EmployeeModel> sortingByFirstName() {
+        return employeeService.sorting();
+    }
 
+    @GetMapping("/findByCompanyName")
+    public List<EmployeeModel> findByCompanyName(@RequestParam String companyName) {
+        return employeeService.findByCompanyName(companyName);
+    }
+
+    @GetMapping("/findByFirstName")
+    public List<EmployeeModel> findByName(@RequestParam String firstName) {
+        return employeeService.findByFirstName(firstName);
+    }
+
+    @GetMapping("/orderByLatName")
+    public List<EmployeeModel> orderByLastName() {
+        return employeeService.orderByLastName();
+    }
 }
